@@ -1,6 +1,5 @@
-import XCTest
-
 import EchoTests
+import XCTest
 
 var tests = [XCTestCaseEntry]()
 tests += EchoTests.allTests()

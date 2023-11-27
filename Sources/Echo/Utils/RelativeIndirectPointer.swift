@@ -7,15 +7,15 @@
 //
 
 struct RelativeIndirectPointer<T>: RelativePointer {
-  typealias Pointee = UnsafePointer<T>
-  
-  let offset: Int32
-  
-  func pointee(from ptr: UnsafeRawPointer) -> Pointee? {
-    if isNull {
-      return nil
+    typealias Pointee = UnsafePointer<T>
+
+    let offset: Int32
+
+    func pointee(from ptr: UnsafeRawPointer) -> Pointee? {
+        if isNull {
+            return nil
+        }
+
+        return address(from: ptr).load(as: Pointee.self)
     }
-    
-    return address(from: ptr).load(as: Pointee.self)
-  }
 }

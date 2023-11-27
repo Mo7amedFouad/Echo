@@ -20,20 +20,20 @@
 // forced to write `var metadata = reflect(type)` as a var when naturally the
 // first instinct is to go for a let first.
 protocol RelativePointer {
-  associatedtype Pointee
-  
-  var offset: Int32 { get }
-  
-  func address(from ptr: UnsafeRawPointer) -> UnsafeRawPointer
-  func pointee(from ptr: UnsafeRawPointer) -> Pointee?
+    associatedtype Pointee
+
+    var offset: Int32 { get }
+
+    func address(from ptr: UnsafeRawPointer) -> UnsafeRawPointer
+    func pointee(from ptr: UnsafeRawPointer) -> Pointee?
 }
 
 extension RelativePointer {
-  var isNull: Bool {
-    offset == 0
-  }
-  
-  func address(from ptr: UnsafeRawPointer) -> UnsafeRawPointer {
-    ptr + Int(offset)
-  }
+    var isNull: Bool {
+        offset == 0
+    }
+
+    func address(from ptr: UnsafeRawPointer) -> UnsafeRawPointer {
+        ptr + Int(offset)
+    }
 }

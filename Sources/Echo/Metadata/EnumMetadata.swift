@@ -15,20 +15,20 @@
 ///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
 ///
 public struct EnumMetadata: TypeMetadata, LayoutWrapper {
-  typealias Layout = _EnumMetadata
-  
-  /// Backing enum metadata pointer.
-  public let ptr: UnsafeRawPointer
-  
-  /// The enum context descriptor that describes this enum.
-  public var descriptor: EnumDescriptor {
-    EnumDescriptor(ptr: layout._descriptor.signed)
-  }
+    typealias Layout = _EnumMetadata
+
+    /// Backing enum metadata pointer.
+    public let ptr: UnsafeRawPointer
+
+    /// The enum context descriptor that describes this enum.
+    public var descriptor: EnumDescriptor {
+        EnumDescriptor(ptr: layout._descriptor.signed)
+    }
 }
 
 extension EnumMetadata: Equatable {}
 
 struct _EnumMetadata {
-  let _kind: Int
-  let _descriptor: SignedPointer<EnumDescriptor>
+    let _kind: Int
+    let _descriptor: SignedPointer<EnumDescriptor>
 }

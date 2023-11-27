@@ -17,8 +17,8 @@
 ///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
 ///
 public struct OpaqueMetadata: Metadata {
-  /// Backing opaque metadata pointer.
-  public let ptr: UnsafeRawPointer
+    /// Backing opaque metadata pointer.
+    public let ptr: UnsafeRawPointer
 }
 
 extension OpaqueMetadata: Equatable {}

@@ -9,18 +9,18 @@
 import Foundation
 
 #if canImport(MachO)
-import MachO
+    import MachO
 #elseif canImport(Glibc)
-import Glibc
+    import Glibc
 #endif
 
 #if os(Linux)
-import CEcho
+    import CEcho
 #endif
 
-//===----------------------------------------------------------------------===//
+// ===----------------------------------------------------------------------===//
 // __swift5_protos/swift5_protocols
-//===----------------------------------------------------------------------===//
+// ===----------------------------------------------------------------------===//
 
 /// The list of all protocols this program has loaded.
 ///
@@ -35,21 +35,21 @@ import CEcho
 ///       // protocols is now outdated! Refresh it by calling this again.
 ///       protocols = Echo.protocols
 public var protocols: [ProtocolDescriptor] {
-  #if os(Linux)
-  iterateSharedObjects()
-  #endif
-  
-  let protos = protocolLock.withLock {
-    _protocols
-  }
-  
-  return Array(unsafeUninitializedCapacity: protos.count) {
-    for (i, proto) in protos.enumerated() {
-      $0[i] = ProtocolDescriptor(ptr: proto)
+    #if os(Linux)
+        iterateSharedObjects()
+    #endif
+
+    let protos = protocolLock.withLock {
+        _protocols
     }
-    
-    $1 = protos.count
-  }
+
+    return Array(unsafeUninitializedCapacity: protos.count) {
+        for (i, proto) in protos.enumerated() {
+            $0[i] = ProtocolDescriptor(ptr: proto)
+        }
+
+        $1 = protos.count
+    }
 }
 
 let protocolLock = NSLock()
@@ -57,50 +57,50 @@ var _protocols = Set<UnsafeRawPointer>()
 
 @_cdecl("registerProtocols")
 func registerProtocols(section: UnsafeRawPointer, size: Int) {
-  for i in 0 ..< size / 4 {
-    let start = section.offset(of: i, as: Int32.self)
-    let ptr = start.relativeDirectAddress(as: _ProtocolDescriptor.self)
-    
-    _ = protocolLock.withLock {
-      _protocols.insert(ptr)
+    for i in 0..<size / 4 {
+        let start = section.offset(of: i, as: Int32.self)
+        let ptr = start.relativeDirectAddress(as: _ProtocolDescriptor.self)
+
+        _ = protocolLock.withLock {
+            _protocols.insert(ptr)
+        }
     }
-  }
 }
 
-//===----------------------------------------------------------------------===//
+// ===----------------------------------------------------------------------===//
 // __swift5_proto/swift5_protocol_conformances
-//===----------------------------------------------------------------------===//
+// ===----------------------------------------------------------------------===//
 
 let conformanceLock = NSLock()
 var conformances = [UnsafeRawPointer: [ConformanceDescriptor]]()
 
 @_cdecl("registerProtocolConformances")
 func registerProtocolConformances(section: UnsafeRawPointer, size: Int) {
-  for i in 0 ..< size / 4 {
-    let start = section.offset(of: i, as: Int32.self)
-    let ptr = start.relativeDirectAddress(as: _ConformanceDescriptor.self)
-    let conformance = ConformanceDescriptor(ptr: ptr)
-    
-    #if canImport(ObjectiveC)
-    if let objcClass = conformance.objcClass {
-      conformanceLock.withLock {
-        conformances[objcClass.ptr, default: []].append(conformance)
-      }
-      continue
+    for i in 0..<size / 4 {
+        let start = section.offset(of: i, as: Int32.self)
+        let ptr = start.relativeDirectAddress(as: _ConformanceDescriptor.self)
+        let conformance = ConformanceDescriptor(ptr: ptr)
+
+        #if canImport(ObjectiveC)
+            if let objcClass = conformance.objcClass {
+                conformanceLock.withLock {
+                    conformances[objcClass.ptr, default: []].append(conformance)
+                }
+                continue
+            }
+        #endif
+
+        if let descriptor = conformance.contextDescriptor {
+            conformanceLock.withLock {
+                conformances[descriptor.ptr, default: []].append(conformance)
+            }
+        }
     }
-    #endif
-    
-    if let descriptor = conformance.contextDescriptor {
-      conformanceLock.withLock {
-        conformances[descriptor.ptr, default: []].append(conformance)
-      }
-    }
-  }
 }
 
-//===----------------------------------------------------------------------===//
+// ===----------------------------------------------------------------------===//
 // __swift5_types/swift5_type_metadata
-//===----------------------------------------------------------------------===//
+// ===----------------------------------------------------------------------===//
 
 /// The list of all protocols this program has loaded.
 ///
@@ -115,22 +115,22 @@ func registerProtocolConformances(section: UnsafeRawPointer, size: Int) {
 ///       // protocols is now outdated! Refresh it by calling this again.
 ///       protocols = Echo.protocols
 public var types: [ContextDescriptor] {
-  #if os(Linux)
-  iterateSharedObjects()
-  #endif
-  
-  let types = typeLock.withLock {
-    _types
-  }
-  
-  var result = [ContextDescriptor]()
-  result.reserveCapacity(types.count)
-  
-  for type in types {
-    result.append(getContextDescriptor(at: type))
-  }
-  
-  return result
+    #if os(Linux)
+        iterateSharedObjects()
+    #endif
+
+    let types = typeLock.withLock {
+        _types
+    }
+
+    var result = [ContextDescriptor]()
+    result.reserveCapacity(types.count)
+
+    for type in types {
+        result.append(getContextDescriptor(at: type))
+    }
+
+    return result
 }
 
 let typeLock = NSLock()
@@ -138,75 +138,75 @@ var _types = Set<UnsafeRawPointer>()
 
 @_cdecl("registerTypeMetadata")
 func registerTypeMetadata(section: UnsafeRawPointer, size: Int) {
-  for i in 0 ..< size / 4 {
-    let start = section.offset(of: i, as: Int32.self)
-    let ptr = start.relativeDirectAddress(as: _ContextDescriptor.self)
-    
-    _ = typeLock.withLock {
-      _types.insert(ptr)
+    for i in 0..<size / 4 {
+        let start = section.offset(of: i, as: Int32.self)
+        let ptr = start.relativeDirectAddress(as: _ContextDescriptor.self)
+
+        _ = typeLock.withLock {
+            _types.insert(ptr)
+        }
     }
-  }
 }
 
-//===----------------------------------------------------------------------===//
+// ===----------------------------------------------------------------------===//
 // Mach-O Image Inspection
-//===----------------------------------------------------------------------===//
+// ===----------------------------------------------------------------------===//
 
 #if canImport(MachO)
 
-#if arch(x86_64) || arch(arm64)
-typealias mach_header_platform = mach_header_64
-#else
-typealias mach_header_platform = mach_header
+    #if arch(x86_64) || arch(arm64)
+        typealias mach_header_platform = mach_header_64
+    #else
+        typealias mach_header_platform = mach_header
+    #endif
+
+    @_cdecl("lookupSection")
+    func lookupSection(
+        _ header: UnsafePointer<mach_header>?,
+        segment: UnsafePointer<CChar>?,
+        section: UnsafePointer<CChar>?,
+        do handler: @convention(c) (UnsafeRawPointer, Int) -> Void
+    ) {
+        guard let header = header else {
+            return
+        }
+
+        var size: UInt = 0
+
+        let section = header.withMemoryRebound(
+            to: mach_header_platform.self,
+            capacity: 1
+        ) {
+            getsectiondata($0, segment, section, &size)
+        }
+
+        guard section != nil else {
+            return
+        }
+
+        handler(section!, Int(size))
+    }
+
 #endif
 
-@_cdecl("lookupSection")
-func lookupSection(
-  _ header: UnsafePointer<mach_header>?,
-  segment: UnsafePointer<CChar>?,
-  section: UnsafePointer<CChar>?,
-  do handler: @convention(c) (UnsafeRawPointer, Int) -> ()
-) {
-  guard let header = header else {
-    return
-  }
-  
-  var size: UInt = 0
-  
-  let section = header.withMemoryRebound(
-    to: mach_header_platform.self,
-    capacity: 1
-  ) {
-    getsectiondata($0, segment, section, &size)
-  }
-  
-  guard section != nil else {
-    return
-  }
-  
-  handler(section!, Int(size))
-}
-
-#endif
-
-//===----------------------------------------------------------------------===//
+// ===----------------------------------------------------------------------===//
 // ELF Image Inspection
-//===----------------------------------------------------------------------===//
+// ===----------------------------------------------------------------------===//
 
 #if os(Linux)
 
-let sharedObjectLock = NSLock()
-var sharedObjects = Set<String>()
+    let sharedObjectLock = NSLock()
+    var sharedObjects = Set<String>()
 
-@_cdecl("cacheSharedObject")
-func cacheSharedObject(cString: UnsafePointer<CChar>) -> Bool {
-  let str = String(cString: cString)
-  
-  let entry = sharedObjectLock.withLock {
-    sharedObjects.insert(str)
-  }
-  
-  return entry.inserted
-}
+    @_cdecl("cacheSharedObject")
+    func cacheSharedObject(cString: UnsafePointer<CChar>) -> Bool {
+        let str = String(cString: cString)
+
+        let entry = sharedObjectLock.withLock {
+            sharedObjects.insert(str)
+        }
+
+        return entry.inserted
+    }
 
 #endif

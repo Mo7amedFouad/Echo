@@ -7,23 +7,23 @@
 //
 
 struct RelativeIndirectablePointer<Pointee>: RelativePointer {
-  let offset: Int32
-  
-  func address(from ptr: UnsafeRawPointer) -> UnsafeRawPointer {
-    let start = ptr + Int(offset & ~1)
-    
-    if Int(offset) & 1 == 1 {
-      return start.load(as: UnsafeRawPointer.self)
-    } else {
-      return start
+    let offset: Int32
+
+    func address(from ptr: UnsafeRawPointer) -> UnsafeRawPointer {
+        let start = ptr + Int(offset & ~1)
+
+        if Int(offset) & 1 == 1 {
+            return start.load(as: UnsafeRawPointer.self)
+        } else {
+            return start
+        }
     }
-  }
-  
-  func pointee(from ptr: UnsafeRawPointer) -> Pointee? {
-    if isNull {
-      return nil
+
+    func pointee(from ptr: UnsafeRawPointer) -> Pointee? {
+        if isNull {
+            return nil
+        }
+
+        return address(from: ptr).load(as: Pointee.self)
     }
-    
-    return address(from: ptr).load(as: Pointee.self)
-  }
 }

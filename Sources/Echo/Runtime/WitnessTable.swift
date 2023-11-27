@@ -24,18 +24,18 @@
 ///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
 ///
 public struct WitnessTable: LayoutWrapper {
-  typealias Layout = _WitnessTable
-  
-  let ptr: UnsafeRawPointer
-  
-  /// The conformance descriptor that describes the protocol conformance
-  /// relationship for whatever type this witness table is representing, and
-  /// the protocol that type conforms to.
-  public var conformanceDescriptor: ConformanceDescriptor {
-    layout._conformance
-  }
+    typealias Layout = _WitnessTable
+
+    let ptr: UnsafeRawPointer
+
+    /// The conformance descriptor that describes the protocol conformance
+    /// relationship for whatever type this witness table is representing, and
+    /// the protocol that type conforms to.
+    public var conformanceDescriptor: ConformanceDescriptor {
+        layout._conformance
+    }
 }
 
 struct _WitnessTable {
-  let _conformance: ConformanceDescriptor
+    let _conformance: ConformanceDescriptor
 }
