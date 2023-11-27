@@ -102,6 +102,19 @@ extension ClassMetadata {
         public var hasCustomObjCName: Bool {
             bits & 0x4 != 0
         }
+
+        /// Whether this metadata is a specialization of a generic metadata pattern
+        /// which was created during compilation.
+        public var isStaticSpecialization: Bool {
+            bits & 0x8 != 0
+        }
+
+        /// Whether this metadata is a specialization of a generic metadata pattern
+        /// which was created during compilation and made to be canonical by
+        /// modifying the metadata accessor.
+        public var isCanonicalStaticSpecialization: Bool {
+            bits & 0x10 != 0
+        }
     }
 }
 
@@ -217,6 +230,14 @@ extension FunctionMetadata {
         public var isAutoclosure: Bool {
             bits & 0x100 != 0
         }
+
+        public var isNoDerivative: Bool {
+            bits & 0x200 != 0
+        }
+
+        public var isIsolated: Bool {
+            bits & 0x400 != 0
+        }
     }
 }
 
@@ -249,6 +270,8 @@ extension ValueWitnessTable {
             case isNonBitwiseTakable = 0x100000
             case hasEnumWitnesses = 0x200000
             case incomplete = 0x400000
+            case isNonCopyable = 0x00800000
+            // unused             0xFF000000
         }
 
         /// Flags as represented in bits.
@@ -288,6 +311,11 @@ extension ValueWitnessTable {
         /// Whether or not this value witness table is incomplete.
         public var isIncomplete: Bool {
             bits & Flags.incomplete.rawValue != 0
+        }
+
+        /// True if values of this type can be copied.
+        public var isCopyable: Bool {
+            bits & Flags.isNonCopyable.rawValue == 0
         }
     }
 }
